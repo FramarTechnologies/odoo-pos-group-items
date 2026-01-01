@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_product_groups.ProductGroupPriceVariantPopup">
+        <div class="popup popup-selection">
+            <div class="modal-header drag-handle">
+                <h4 class="modal-title"><t t-esc="props.productGroup?.name || 'Select Price Variant'" /></h4>
+            </div>
+            <div class="selection btn-group-vertical justify-content-start w-100 p-3 overflow-y-auto">
+                <t t-if="subGroups.length === 0" class="text-center p-3">
+                    <p>No price variants available for this product group.</p>
+                    <p style="font-size: 0.9em; color: #666;">Please add sub groups (price variants) in the backend.</p>
+                </t>
+                <t t-foreach="subGroups" t-as="subGroup" t-key="subGroup.id">
+                    <button 
+                        type="button" 
+                        class="selection-item d-flex align-items-center justify-content-between btn btn-lg btn-outline-secondary w-100 p-3 text-start"
+                        t-on-click="() => this.selectSubGroupHandler(subGroup)">
+                        <div class="d-flex flex-column">
+                            <span style="font-weight: bold;"><t t-esc="subGroup.name"/></span>
+                        </div>
+                        <span style="font-size: 1.2em; font-weight: bold;">
+                            <t t-esc="format_currency(subGroup.price)"/>
+                        </span>
+                    </button>
+                </t>
+            </div>
+            <footer class="footer modal-footer">
+                <div class="button cancel btn btn-lg btn-primary" t-on-click="cancel">
+                    Cancel
+                </div>
+            </footer>
+        </div>
+    </t>
+</templates>
+

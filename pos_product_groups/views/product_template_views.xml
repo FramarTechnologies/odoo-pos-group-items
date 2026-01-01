@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_product_template_form_inherit_product_group" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.product.group</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <field name="categ_id" position="after">
+                <field name="is_product_group" invisible="1"/>
+                <field name="product_group_id" invisible="1"/>
+            </field>
+        </field>
+    </record>
+</odoo>
+
+
+
+

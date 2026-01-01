@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Big Group Views -->
+    <record id="view_product_group_tree" model="ir.ui.view">
+        <field name="name">product.group.tree</field>
+        <field name="model">product.group</field>
+        <field name="arch" type="xml">
+            <tree string="Product Groups (Big Groups)">
+                <field name="name"/>
+                <field name="active"/>
+                <field name="sub_group_ids" widget="many2many_tags" string="Sub Groups"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Component Tree View (defined early so action can reference it) -->
+    <record id="view_product_group_component_tree" model="ir.ui.view">
+        <field name="name">product.group.component.tree</field>
+        <field name="model">product.group.component</field>
+        <field name="arch" type="xml">
+            <tree editable="top" create="1" delete="1" string="Components - Select Products from Inventory">
+                <field name="sequence" widget="handle"/>
+                <field name="product_id" 
+                       required="1" 
+                       options="{'no_create': True}"
+                       domain="[('type', 'in', ['product', 'consu'])]"
+                       widget="many2one"
+                       placeholder="Select product from inventory (beans, chapati, etc.)..."/>
+                <field name="quantity" required="1" string="Qty"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Component Window Action (defined early so it can be referenced) -->
+    <record id="action_product_group_component" model="ir.actions.act_window">
+        <field name="name">Components</field>
+        <field name="res_model">product.group.component</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_product_group_component_tree"/>
+        <field name="target">new</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="view_product_group_form" model="ir.ui.view">
+        <field name="name">product.group.form</field>
+        <field name="model">product.group</field>
+        <field name="arch" type="xml">
+            <form string="Product Group (Big Group)">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="e.g., Kikomando, Rolex"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="product_template_id" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Sub Groups" name="sub_groups">
+                            <field name="sub_group_ids" nolabel="1" context="{'default_product_group_id': id}">
+                                <tree editable="top" create="1" delete="1">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name" placeholder="e.g., Kikomando 1500, Kikomando 3000" required="1"/>
+                                    <field name="price" required="1"/>
+                                    <field name="active"/>
+                                    <field name="id" invisible="1"/>
+                                    <button name="action_open_components" 
+                                            type="object" 
+                                            string="Add Components"
+                                            icon="fa-list"
+                                            title="Click to add components from inventory"
+                                            attrs="{'invisible': [('id', '=', False)]}"/>
+                                </tree>
+                            </field>
+                        </page>
+                        
+                        <page string="Description" name="description">
+                            <field name="description" placeholder="Optional description"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_product_group" model="ir.actions.act_window">
+        <field name="name">Product Groups</field>
+        <field name="res_model">product.group</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Product Group!
+            </p>
+            <p>
+                Product Groups (Big Groups) are collections like Kikomando, Rolex, etc.
+                Each big group can have multiple sub groups (e.g., Kikomando 1500, Kikomando 3000).
+                Each sub group has its own price and components.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_product_group"
+              name="Product Groups"
+              parent="point_of_sale.menu_point_of_sale"
+              action="action_product_group"
+              sequence="20"/>
+
+    <!-- Sub Group Views -->
+    <record id="view_product_group_sub_tree" model="ir.ui.view">
+        <field name="name">product.group.sub.tree</field>
+        <field name="model">product.group.sub</field>
+        <field name="arch" type="xml">
+            <tree string="Product Sub Groups">
+                <field name="name"/>
+                <field name="product_group_id"/>
+                <field name="price"/>
+                <field name="active"/>
+                <field name="component_ids" widget="many2many_tags"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_product_group_sub_form" model="ir.ui.view">
+        <field name="name">product.group.sub.form</field>
+        <field name="model">product.group.sub</field>
+        <field name="arch" type="xml">
+            <form string="Product Sub Group">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="product_group_id" required="1"/>
+                            <field name="name" placeholder="e.g., Kikomando 1500, Kikomando 3000"/>
+                            <field name="price" required="1"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="product_template_id" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Components" name="components">
+                            <field name="component_ids" nolabel="1" context="{'default_sub_group_id': id}">
+                                <tree editable="top" create="1" delete="1">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id" 
+                                           required="1" 
+                                           options="{'no_create': True}"
+                                           domain="[]"
+                                           widget="many2one"
+                                           placeholder="Click to search and select inventory products..."/>
+                                    <field name="quantity" required="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_product_group_sub" model="ir.actions.act_window">
+        <field name="name">Product Sub Groups</field>
+        <field name="res_model">product.group.sub</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <!-- Component Form View (for better product selection) -->
+    <record id="view_product_group_component_form" model="ir.ui.view">
+        <field name="name">product.group.component.form</field>
+        <field name="model">product.group.component</field>
+        <field name="arch" type="xml">
+            <form string="Component">
+                <sheet>
+                    <group>
+                        <field name="product_id" 
+                               required="1" 
+                               options="{'no_create': True}"
+                               domain="[]"
+                               widget="many2one"
+                               placeholder="Search and select product from inventory..."/>
+                        <field name="quantity" required="1"/>
+                        <field name="sequence"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>
